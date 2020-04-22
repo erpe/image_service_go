@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/erpe/image_service_go/app/config"
+	"github.com/erpe/image_service_go/app/handler"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -41,6 +42,31 @@ func (a *App) Initialize(config *config.Config) {
 	}
 
 	log.Printf("connected database '%s'", config.DB.Name)
+
+	a.setRouters()
+	a.setMiddleware()
+}
+
+func (a *App) setMiddleware() {
+	a.Router.Use(handler.LoggingMiddleware)
+}
+
+func (a *App) setRouters() {
+	a.Router = mux.NewRouter()
+	apiRouter := a.Router.PathPrefix("/api").Subrouter()
+
+	apiRouter.HandleFunc("/images", a.imagesHandler).
+		Methods("GET")
+	apiRouter.HandleFunc("/images/{id}", a.imageHandler).
+		Methods("GET")
+}
+
+func (a *App) imagesHandler(w http.ResponseWriter, r *http.Request) {
+	handler.GetImages(a.DB, w, r)
+}
+
+func (a *App) imageHandler(w http.ResponseWriter, r *http.Request) {
+	handler.GetImage(a.DB, w, r)
 }
 
 func (a *App) Run() {
@@ -64,5 +90,6 @@ func (a *App) Run() {
 	})
 
 	log.Printf("listening on '%s'", a.Config.Server.ToString())
-	log.Fatal(http.ListenAndServe(a.Config.Server.ToString(), handlers.CORS(originsOk, headersOk, methodsOk)(a.Router)))
+	log.Fatal(http.ListenAndServe(a.Config.Server.ToString(),
+		handlers.CORS(originsOk, headersOk, methodsOk)(a.Router)))
 }
