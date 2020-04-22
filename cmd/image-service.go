@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/austauschkompass/image_service_go/app"
-	"github.com/austauschkompass/image_service_go/app/config"
+	"github.com/erpe/image_service_go/app"
+	"github.com/erpe/image_service_go/app/config"
 	"log"
 )
 

@@ -2,8 +2,8 @@ package app
 
 import (
 	"fmt"
-	"github.com/austauschkompass/image_service_go/app/config"
-	"github.com/austauschkompass/image_service_go/app/model"
+	"github.com/erpe/image_service_go/app/config"
+	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -14,9 +14,12 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *gorm.DB
+	Config *config.Config
 }
 
 func (a *App) Initialize(config *config.Config) {
+
+	a.Config = config
 
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s password=%s",
 		config.DB.Host,
@@ -38,7 +41,6 @@ func (a *App) Initialize(config *config.Config) {
 	}
 
 	log.Printf("connected database '%s'", config.DB.Name)
-	log.Printf("listening on '%s'", config.Server.ToString())
 }
 
 func (a *App) Run() {
@@ -61,5 +63,6 @@ func (a *App) Run() {
 		"DELETE",
 	})
 
-	log.Fatal(http.ListenAndServe("localhost:3000", handlers.CORS(originsOk, headersOk, methodsOk)(a.Router)))
+	log.Printf("listening on '%s'", a.Config.Server.ToString())
+	log.Fatal(http.ListenAndServe(a.Config.Server.ToString(), handlers.CORS(originsOk, headersOk, methodsOk)(a.Router)))
 }
