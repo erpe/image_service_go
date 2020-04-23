@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 )
 
+/* GET /api/images */
 func GetImages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	images := []model.Image{}
 
@@ -20,6 +22,7 @@ func GetImages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, images)
 }
 
+/* GET /api/images/1 */
 func GetImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -34,6 +37,24 @@ func GetImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	respondJSON(w, http.StatusOK, image)
+}
+
+/* POST /api/images */
+func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
+	image := model.PostImage{}
+
+	json.NewDecoder(r.Body).Decode(&image)
+
+	defer r.Body.Close()
+
+	if err := db.Save(&image).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+	} else {
+		img := model.Image{}
+		db.First(&img, image.ID)
+		respondJSON(w, http.StatusCreated, img)
+	}
 }
 
 func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter, r *http.Request) *model.Image {
