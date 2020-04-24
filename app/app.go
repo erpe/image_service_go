@@ -82,9 +82,11 @@ func (a *App) Run() {
 		"Content-Type",
 	})
 
-	originsOk := handlers.AllowedOrigins([]string{
-		"http://localhost:3000",
-	})
+	originsOk := handlers.AllowedOrigins(a.Config.Server.Cors)
+
+	for _, host := range a.Config.Server.Cors {
+		log.Printf("enabling CORS for: %s", host)
+	}
 
 	methodsOk := handlers.AllowedMethods([]string{
 		"GET",

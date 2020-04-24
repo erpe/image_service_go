@@ -8,8 +8,10 @@ import (
 
 // a Config struct to pass into our app
 type Config struct {
-	DB     db
-	Server server
+	DB      db
+	Server  server
+	Storage storage
+	S3      s3
 }
 
 type db struct {
@@ -26,6 +28,17 @@ type server struct {
 	Port       int
 	Debug      bool
 	AdminToken string
+	Cors       []string
+}
+
+type storage struct {
+	Type string
+}
+
+type s3 struct {
+	Region string
+	Bucket string
+	Host   string
 }
 
 func (srv *server) ToString() string {
