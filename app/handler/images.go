@@ -1,12 +1,19 @@
 package handler
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "golang.org/x/image/tiff"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 	"net/http"
+	"strings"
 )
 
 /* GET /api/images */
@@ -42,17 +49,31 @@ func GetImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 /* POST /api/images */
 func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
-	image := model.PostImage{}
+	postImage := model.PostImage{}
 
-	json.NewDecoder(r.Body).Decode(&image)
+	json.NewDecoder(r.Body).Decode(&postImage)
 
 	defer r.Body.Close()
 
-	if err := db.Save(&image).Error; err != nil {
+	reader := strings.NewReader(postImage.Data)
+
+	decoded := base64.NewDecoder(base64.StdEncoding, reader)
+
+	imageData, format, err := image.Decode(decoded)
+
+	if err != nil {
+		log.Println("err: ", err.Error())
+	}
+
+	log.Printf("decoded image format: %s", format)
+	log.Printf("imageData: %o", imageData)
+	// TODO: store it, create variants
+
+	if err := db.Save(&postImage).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
 	} else {
 		img := model.Image{}
-		db.First(&img, image.ID)
+		db.First(&img, postImage.ID)
 		respondJSON(w, http.StatusCreated, img)
 	}
 }
