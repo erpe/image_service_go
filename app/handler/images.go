@@ -1,19 +1,12 @@
 package handler
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	_ "golang.org/x/image/tiff"
-	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"log"
 	"net/http"
-	"strings"
 )
 
 /* GET /api/images */
@@ -55,11 +48,7 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	reader := strings.NewReader(postImage.Data)
-
-	decoded := base64.NewDecoder(base64.StdEncoding, reader)
-
-	imageData, format, err := image.Decode(decoded)
+	imageData, format, err := postImage.ToImage()
 
 	if err != nil {
 		log.Println("err: ", err.Error())
