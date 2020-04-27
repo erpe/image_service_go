@@ -2,12 +2,19 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/erpe/image_service_go/app/config"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"log"
 	"net/http"
 )
+
+var appConfig *config.Config
+
+func init() {
+	appConfig = config.GetConfig()
+}
 
 /* GET /api/images */
 func GetImages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -57,6 +64,14 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	log.Printf("decoded image format: %s", format)
 	log.Printf("imageData: %o", imageData)
 	// TODO: store it, create variants
+
+	if appConfig.Storage.IsLocal() {
+		log.Println("About to store file locally")
+	}
+
+	if appConfig.Storage.IsS3() {
+		log.Println("About to store file in S3")
+	}
 
 	if err := db.Save(&postImage).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())

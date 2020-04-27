@@ -34,6 +34,7 @@ type = "s3"
 region = "eu-central-1"
 bucket = "FOO"
 host = "https://FOO.s3.eu-central-1.amazonaws.com"
+folder =""
 
 [localstore]
 directory = "./uploads"

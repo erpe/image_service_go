@@ -8,10 +8,11 @@ import (
 
 // a Config struct to pass into our app
 type Config struct {
-	DB      db
-	Server  server
-	Storage storage
-	S3      s3
+	DB         db
+	Server     server
+	Storage    storage
+	S3         s3
+	Localstore localstore
 }
 
 type db struct {
@@ -39,6 +40,11 @@ type s3 struct {
 	Region string
 	Bucket string
 	Host   string
+	Folder string
+}
+
+type localstore struct {
+	Directory string
 }
 
 func (srv *server) ToString() string {
@@ -51,6 +57,15 @@ func (dbcfg *db) ToString() string {
 	return str
 }
 
+func (s *storage) IsS3() bool {
+	res := s.Type == "s3"
+	return res
+}
+
+func (s *storage) IsLocal() bool {
+	res := s.Type == "local"
+	return res
+}
 func GetConfig() *Config {
 	var config Config
 

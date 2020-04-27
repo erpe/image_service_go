@@ -5,16 +5,25 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/erpe/image_service_go/app/config"
 	"log"
 	"net/http"
 )
 
-const (
-	S3_REGION       = "eu-central-1"
-	S3_BUCKET       = "TODO"
-	S3_HOST         = "https://TODO.s3.eu-central-1.amazonaws.com"
-	DESTINATION_DIR = "TODO/"
+var (
+	S3_REGION string
+	S3_BUCKET string
+	S3_HOST   string
+	S3_FOLDER string
 )
+
+func init() {
+	s3 := config.GetConfig().S3
+	S3_REGION = s3.Region
+	S3_BUCKET = s3.Bucket
+	S3_HOST = s3.Host
+	S3_FOLDER = s3.Folder
+}
 
 /*
 	expects credentials in env:
@@ -34,7 +43,7 @@ func storeS3(buffer []byte, fname string) (string, error) {
 
 	var size int64 = int64(len(buffer))
 
-	var destDir string = DESTINATION_DIR + fname
+	var destDir string = S3_FOLDER + fname
 
 	res, err := s3.New(sess).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(S3_BUCKET),
