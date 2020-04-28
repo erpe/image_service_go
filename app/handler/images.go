@@ -97,15 +97,3 @@ func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter, r *http.Request) 
 
 	return &image
 }
-
-func saveImage(buffer []byte) string {
-	if appConfig.Storage.IsLocal() {
-		log.Println("About to store file locally")
-	}
-
-	if appConfig.Storage.IsS3() {
-		log.Println("About to store file in S3")
-	}
-
-	return "TODO url"
-}
