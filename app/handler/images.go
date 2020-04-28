@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"github.com/erpe/image_service_go/app/config"
 	"github.com/erpe/image_service_go/app/model"
+	"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var appConfig *config.Config
@@ -55,31 +57,35 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	imageData, format, err := postImage.ToImage()
+	imgBytes, format, err := postImage.Bytes()
 
 	if err != nil {
 		log.Println("err: ", err.Error())
-	}
-
-	log.Printf("decoded image format: %s", format)
-	log.Printf("imageData: %o", imageData)
-	// TODO: store it, create variants
-
-	if appConfig.Storage.IsLocal() {
-		log.Println("About to store file locally")
-	}
-
-	if appConfig.Storage.IsS3() {
-		log.Println("About to store file in S3")
+		respondError(w, http.StatusInternalServerError, err.Error())
 	}
 
 	if err := db.Save(&postImage).Error; err != nil {
+
 		respondError(w, http.StatusInternalServerError, err.Error())
+
 	} else {
+
 		img := model.Image{}
+
 		db.First(&img, postImage.ID)
+
+		url, err := storage.Save(imgBytes, createImageName(postImage.ID, format))
+
+		if err != nil {
+			log.Println("url: ", url)
+		}
+
 		respondJSON(w, http.StatusCreated, img)
 	}
+}
+
+func createImageName(id int, format string) string {
+	return strconv.Itoa(id) + "-upload." + format
 }
 
 func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter, r *http.Request) *model.Image {
@@ -90,4 +96,16 @@ func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter, r *http.Request) 
 	}
 
 	return &image
+}
+
+func saveImage(buffer []byte) string {
+	if appConfig.Storage.IsLocal() {
+		log.Println("About to store file locally")
+	}
+
+	if appConfig.Storage.IsS3() {
+		log.Println("About to store file in S3")
+	}
+
+	return "TODO url"
 }

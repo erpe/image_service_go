@@ -1,12 +1,14 @@
 package model
 
 import (
+	"bytes"
 	"encoding/base64"
-	_ "golang.org/x/image/tiff"
+	"errors"
+	"golang.org/x/image/tiff"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"strings"
 )
 
@@ -43,4 +45,37 @@ func (pi *PostImage) ToImage() (image.Image, string, error) {
 	img, format, err := image.Decode(decoded)
 
 	return img, format, err
+}
+
+/* returns []byte image data, format, error */
+func (pi *PostImage) Bytes() ([]byte, string, error) {
+
+	img, format, err := pi.ToImage()
+
+	if err != nil {
+		return []byte(""), "", err
+	}
+
+	buf := new(bytes.Buffer)
+
+	var imgErr error
+
+	switch format {
+	case "jpeg":
+		imgErr = jpeg.Encode(buf, img, &jpeg.Options{Quality: 95})
+	case "png":
+		imgErr = png.Encode(buf, img)
+	case "gif":
+		imgErr = gif.Encode(buf, img, nil)
+	case "tif":
+		imgErr = tiff.Encode(buf, img, nil)
+	default:
+		imgErr = errors.New("Unsupported format: " + format)
+	}
+
+	if imgErr != nil {
+		return []byte(""), format, imgErr
+	}
+
+	return buf.Bytes(), format, nil
 }

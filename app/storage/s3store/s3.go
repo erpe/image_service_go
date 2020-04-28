@@ -1,4 +1,4 @@
-package handler
+package s3store
 
 import (
 	"bytes"
@@ -18,11 +18,11 @@ var (
 )
 
 func init() {
-	s3 := config.GetConfig().S3
-	S3_REGION = s3.Region
-	S3_BUCKET = s3.Bucket
-	S3_HOST = s3.Host
-	S3_FOLDER = s3.Folder
+	s3cfg := config.GetConfig().S3
+	S3_REGION = s3cfg.Region
+	S3_BUCKET = s3cfg.Bucket
+	S3_HOST = s3cfg.Host
+	S3_FOLDER = s3cfg.Folder
 }
 
 /*
@@ -33,7 +33,7 @@ func init() {
 */
 
 // returns full url to image
-func storeS3(buffer []byte, fname string) (string, error) {
+func StoreS3(buffer []byte, fname string) (string, error) {
 
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(S3_REGION)})
 
