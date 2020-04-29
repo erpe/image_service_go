@@ -128,9 +128,7 @@ curl --location --request PATCH 'http://localhost:3010/api/images/1' \
 }
 ```
 
-### Delete Image 1
-
-
+### Delete Image 42
 
 ```
 curl --location --request DELETE 'http://localhost:3010/api/images/42'
