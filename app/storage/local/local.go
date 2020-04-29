@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 )
 
-var DIRECTORY string
+var DIRECTORY, HOST string
 
 func init() {
+	HOST = config.GetConfig().Localstore.Assethost
 	DIRECTORY = config.GetConfig().Localstore.Directory
 }
 
@@ -19,5 +20,6 @@ func StoreLocal(buffer []byte, fname string) (string, error) {
 		return "", err
 	}
 
-	return fname, nil
+	url := HOST + "/" + DIRECTORY + "/" + fname
+	return url, nil
 }

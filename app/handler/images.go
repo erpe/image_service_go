@@ -80,6 +80,9 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			log.Println("url: ", url)
 		}
 
+		img.Url = url
+		db.Save(&img)
+
 		respondJSON(w, http.StatusCreated, img)
 	}
 }

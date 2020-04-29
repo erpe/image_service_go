@@ -37,6 +37,7 @@ host = "https://FOO.s3.eu-central-1.amazonaws.com"
 folder =""
 
 [localstore]
+assethost = "http://localhost:3010"
 directory = "./uploads"
 
 ## Create Image Resource:

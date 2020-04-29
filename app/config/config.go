@@ -45,6 +45,7 @@ type s3 struct {
 
 type localstore struct {
 	Directory string
+	Assethost string
 }
 
 func (srv *server) ToString() string {

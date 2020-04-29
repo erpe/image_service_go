@@ -1,14 +1,11 @@
 package model
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
-	"golang.org/x/image/tiff"
 	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
+	"log"
+	"net/http"
 	"strings"
 )
 
@@ -47,35 +44,42 @@ func (pi *PostImage) ToImage() (image.Image, string, error) {
 	return img, format, err
 }
 
-/* returns []byte image data, format, error */
+/* returns []byte image data, imagetype, error */
 func (pi *PostImage) Bytes() ([]byte, string, error) {
 
-	img, format, err := pi.ToImage()
+	b, err := base64.StdEncoding.DecodeString(pi.Data)
 
 	if err != nil {
 		return []byte(""), "", err
 	}
 
-	buf := new(bytes.Buffer)
+	imgType, err := getImageType(b)
 
-	var imgErr error
-
-	switch format {
-	case "jpeg":
-		imgErr = jpeg.Encode(buf, img, &jpeg.Options{Quality: 95})
-	case "png":
-		imgErr = png.Encode(buf, img)
-	case "gif":
-		imgErr = gif.Encode(buf, img, nil)
-	case "tif":
-		imgErr = tiff.Encode(buf, img, nil)
-	default:
-		imgErr = errors.New("Unsupported format: " + format)
+	if err != nil {
+		return b, imgType, err
 	}
 
-	if imgErr != nil {
-		return []byte(""), format, imgErr
+	log.Println("Format: ", imgType)
+
+	return b, imgType, nil
+}
+
+func getImageType(b []byte) (string, error) {
+
+	allowed := []string{"jpeg", "jpg", "gif", "png", "tif", "tiff"}
+
+	arr := strings.Split(http.DetectContentType(b), "/")
+
+	if len(arr) < 2 {
+		return "", errors.New("Unknown Content-Type:" + arr[0])
 	}
 
-	return buf.Bytes(), format, nil
+	imageType := arr[len(arr)-1]
+
+	for _, item := range allowed {
+		if item == imageType {
+			return item, nil
+		}
+	}
+	return "", errors.New("Unregistered ImageType: " + imageType)
 }
