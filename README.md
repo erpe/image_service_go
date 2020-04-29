@@ -38,7 +38,8 @@ folder =""
 
 [localstore]
 assethost = "http://localhost:3010"
-directory = "./uploads"
+# below app path
+directory = "uploads"
 
 ## Create Image Resource:
 
