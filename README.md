@@ -48,11 +48,11 @@ directory = "uploads"
 
 ### GET Images
 
+
+`curl --location --request GET 'http://localhost:3010/api/images'`
+
+response: 
 ```
-curl --location --request GET 'http://localhost:3010/api/images'
-```
-```
-// response:
 [
   {
     "id": 48,
