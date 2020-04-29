@@ -94,7 +94,38 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func UpdateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	imageId := makeInt(vars["id"])
+
+	image := getImageOr404(db, imageId, w, r)
+
+	if image == nil {
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+
+	defer r.Body.Close()
+
+	if err := decoder.Decode(&image); err != nil {
+		log.Println("ERROR: ", err.Error())
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := db.Save(&image).Error; err != nil {
+		log.Println("ERROR: ", err.Error())
+		respondError(w, http.StatusInternalServerError, err.Error())
+	}
+
+	respondJSON(w, http.StatusOK, image)
+}
+
 func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
 	vars := mux.Vars(r)
 
 	imageId := makeInt(vars["id"])
