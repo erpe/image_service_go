@@ -3,6 +3,7 @@ package local
 import (
 	"github.com/erpe/image_service_go/app/config"
 	"io/ioutil"
+	"os"
 )
 
 var DIRECTORY, HOST string
@@ -12,7 +13,7 @@ func init() {
 	DIRECTORY = config.GetConfig().Localstore.Directory
 }
 
-func StoreLocal(buffer []byte, fname string) (string, error) {
+func SaveImage(buffer []byte, fname string) (string, error) {
 
 	err := ioutil.WriteFile(DIRECTORY+"/"+fname, buffer, 0644)
 
@@ -22,4 +23,8 @@ func StoreLocal(buffer []byte, fname string) (string, error) {
 
 	url := HOST + "/" + DIRECTORY + "/" + fname
 	return url, nil
+}
+
+func UnlinkImage(fname string) error {
+	return os.Remove(DIRECTORY + "/" + fname)
 }

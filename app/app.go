@@ -61,6 +61,8 @@ func (a *App) setRouters() {
 		Methods("GET")
 	apiRouter.HandleFunc("/images", a.createImageHandler).
 		Methods("POST")
+	apiRouter.HandleFunc("/images/{id}", a.destroyImageHandler).
+		Methods("DELETE")
 }
 
 func (a *App) imagesHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +75,10 @@ func (a *App) imageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) createImageHandler(w http.ResponseWriter, r *http.Request) {
 	handler.CreateImage(a.DB, w, r)
+}
+
+func (a *App) destroyImageHandler(w http.ResponseWriter, r *http.Request) {
+	handler.DestroyImage(a.DB, w, r)
 }
 
 func (a *App) Run() {

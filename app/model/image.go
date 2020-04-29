@@ -12,6 +12,7 @@ import (
 type Image struct {
 	ID        int    `gorm:"column:id" json:"id"`
 	Url       string `json:"url"`
+	Filename  string `json:"filename"`
 	Alt       string `json:"alt"`
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
@@ -22,6 +23,7 @@ type Image struct {
 type PostImage struct {
 	ID        int    `gorm:"column:id" json:"id"`
 	Url       string `json:"url"`
+	Filename  string `json:"filename"`
 	Alt       string `json:"alt"`
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
@@ -33,7 +35,7 @@ func (pi *PostImage) TableName() string {
 	return "images"
 }
 
-func (pi *PostImage) ToImage() (image.Image, string, error) {
+func (pi *PostImage) Image() (image.Image, string, error) {
 
 	reader := strings.NewReader(pi.Data)
 

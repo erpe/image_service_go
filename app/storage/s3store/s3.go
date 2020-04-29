@@ -33,7 +33,7 @@ func init() {
 */
 
 // returns full url to image
-func StoreS3(buffer []byte, fname string) (string, error) {
+func SaveImage(buffer []byte, fname string) (string, error) {
 
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(S3_REGION)})
 

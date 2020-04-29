@@ -6,13 +6,13 @@ import (
 	"github.com/erpe/image_service_go/app/storage/s3store"
 )
 
-func Save(data []byte, name string) (string, error) {
+func SaveImage(data []byte, name string) (string, error) {
 	cfg := config.GetConfig()
 
 	var url string
 
 	if cfg.Storage.IsS3() {
-		res, err := s3store.StoreS3(data, name)
+		res, err := s3store.SaveImage(data, name)
 
 		if err != nil {
 			return "", err
@@ -21,7 +21,7 @@ func Save(data []byte, name string) (string, error) {
 	}
 
 	if cfg.Storage.IsLocal() {
-		res, err := local.StoreLocal(data, name)
+		res, err := local.SaveImage(data, name)
 
 		if err != nil {
 			return "", err
@@ -31,4 +31,16 @@ func Save(data []byte, name string) (string, error) {
 	}
 
 	return url, nil
+}
+
+func UnlinkImage(fname string) error {
+	cfg := config.GetConfig()
+	if cfg.Storage.IsS3() {
+		return nil
+	}
+
+	if cfg.Storage.IsLocal() {
+		return local.UnlinkImage(fname)
+	}
+	return nil
 }

@@ -74,16 +74,42 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 		db.First(&img, postImage.ID)
 
-		url, err := storage.Save(imgBytes, createImageName(postImage.ID, format))
+		fname := createImageName(postImage.ID, format)
+
+		url, err := storage.SaveImage(imgBytes, fname)
 
 		if err != nil {
-			log.Println("url: ", url)
+			log.Println("ERROR: ", err.Error())
+			respondError(w, http.StatusInternalServerError, err.Error())
 		}
 
 		img.Url = url
-		db.Save(&img)
+		img.Filename = fname
 
-		respondJSON(w, http.StatusCreated, img)
+		if err := db.Save(&img).Error; err != nil {
+			respondError(w, http.StatusInternalServerError, err.Error())
+		} else {
+			respondJSON(w, http.StatusCreated, img)
+		}
+	}
+}
+
+func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	imageId := makeInt(vars["id"])
+
+	image := getImageOr404(db, imageId, w, r)
+
+	if image == nil {
+		return
+	}
+
+	if err := storage.UnlinkImage(image.Filename); err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+	} else {
+		db.Unscoped().Delete(&image)
+		respondJSON(w, http.StatusNoContent, nil)
 	}
 }
 
