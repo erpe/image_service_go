@@ -50,8 +50,8 @@ directory = "uploads"
 
 ```
 curl --location --request GET 'http://localhost:3010/api/images'
-
-
+```
+```
 // response:
 [
   {
