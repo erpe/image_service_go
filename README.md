@@ -41,7 +41,7 @@ folder =""
 assethost = "http://localhost:3010"
 # below app path
 directory = "uploads"
-
+```
 
 
 ## Api
