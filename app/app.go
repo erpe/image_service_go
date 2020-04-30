@@ -65,6 +65,18 @@ func (a *App) setRouters() {
 		Methods("DELETE")
 	apiRouter.HandleFunc("/images/{id}", a.updateImageHandler).
 		Methods("PATCH")
+
+	apiRouter.HandleFunc("/images/{imageId}/variants", a.variantsHandler).
+		Methods("GET")
+
+	apiRouter.HandleFunc("/variants", a.variantsHandler).
+		Methods("GET")
+	apiRouter.HandleFunc("/variants/{id}", a.variantHandler).
+		Methods("GET")
+	apiRouter.HandleFunc("/variants/{imageId}", a.createVariantHandler).
+		Methods("POST")
+	apiRouter.HandleFunc("/variants/{id}", a.destroyVariantHandler).
+		Methods("DELETE")
 }
 
 func (a *App) imagesHandler(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +97,22 @@ func (a *App) destroyImageHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) updateImageHandler(w http.ResponseWriter, r *http.Request) {
 	handler.UpdateImage(a.DB, w, r)
+}
+
+func (a *App) variantsHandler(w http.ResponseWriter, r *http.Request) {
+	handler.GetVariants(a.DB, w, r)
+}
+
+func (a *App) variantHandler(w http.ResponseWriter, r *http.Request) {
+	handler.GetVariant(a.DB, w, r)
+}
+
+func (a *App) createVariantHandler(w http.ResponseWriter, r *http.Request) {
+	handler.CreateVariant(a.DB, w, r)
+}
+
+func (a *App) destroyVariantHandler(w http.ResponseWriter, r *http.Request) {
+	handler.DestroyVariant(a.DB, w, r)
 }
 
 func (a *App) Run() {

@@ -37,7 +37,7 @@ func GetImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	imageId := makeInt(vars["id"])
 
-	image := getImageOr404(db, imageId, w, r)
+	image := getImageOr404(db, imageId, w)
 
 	if image == nil {
 		return
@@ -100,7 +100,7 @@ func UpdateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	imageId := makeInt(vars["id"])
 
-	image := getImageOr404(db, imageId, w, r)
+	image := getImageOr404(db, imageId, w)
 
 	if image == nil {
 		return
@@ -130,7 +130,7 @@ func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	imageId := makeInt(vars["id"])
 
-	image := getImageOr404(db, imageId, w, r)
+	image := getImageOr404(db, imageId, w)
 
 	if image == nil {
 		return
@@ -148,7 +148,7 @@ func createImageName(id int, format string) string {
 	return strconv.Itoa(id) + "-upload." + format
 }
 
-func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter, r *http.Request) *model.Image {
+func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Image {
 	image := model.Image{}
 	if err := db.First(&image, id).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
