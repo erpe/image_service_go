@@ -1,0 +1,27 @@
+[db]
+dialect = "postgres"
+name = "image_service"
+username = "your-user"
+charset = "utf-8"
+host = "localhost"
+password = "your-password"
+
+[server]
+name = "localhost"
+port = 3010
+debug = true
+admin_token = "your-secret-access-token"
+cors = ["http://localhost:3000"]
+
+[storage]
+# local || s3
+type = "s3"
+
+[s3]
+region = "eu-central-1"
+bucket = "your-bucket"
+host = "https://your-bucket.s3.eu-central-1.amazonaws.com"
+
+[localstore]
+assethost = "http://localhost:3010"
+directory = "uploads"

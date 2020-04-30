@@ -1,0 +1,36 @@
+# A systemd service file for ImageServiceGo
+# to install it:
+# cp this file to /etc/systemd/system
+# run 'sudo systemctrl enable ImageServiceGo'
+# to enable it at starttime
+# you can manually start/stop this service with:
+# 'sudo service ImageServiceGo start|stop'
+# add this command to password-less sudoers file for your deployment user
+# see log with:
+# 'sudo journalctl -t ImageServiceGo'
+
+[Unit]
+Description=ImageServiceGo App
+ConditionPathExists=/var/www/foo.domain.tld/htdocs/ImageServiceGo
+After=network.target
+
+[Service]
+Type=simple
+User=deploymentuser
+Group=deploymentuser
+Environment='MODE=production'
+LimitNOFILE=1024
+
+Restart=on-failure
+StartLimitIntervalSec=60
+
+WorkingDirectory=/var/www/foo.domain.tld/htdocs
+ExecStart=/var/www/foo.domain.tld/htdocs/ImageServiceGo
+
+PermissionsStartOnly=true
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ImageServiceGo
+
+[Install]
+WantedBy=multi-user.target

@@ -40,7 +40,6 @@ type s3 struct {
 	Region string
 	Bucket string
 	Host   string
-	Folder string
 }
 
 type localstore struct {

@@ -3,6 +3,7 @@ package s3store
 import (
 	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/erpe/image_service_go/app/config"
@@ -14,7 +15,6 @@ var (
 	S3_REGION string
 	S3_BUCKET string
 	S3_HOST   string
-	S3_FOLDER string
 )
 
 func init() {
@@ -22,7 +22,6 @@ func init() {
 	S3_REGION = s3cfg.Region
 	S3_BUCKET = s3cfg.Bucket
 	S3_HOST = s3cfg.Host
-	S3_FOLDER = s3cfg.Folder
 }
 
 /*
@@ -43,11 +42,11 @@ func SaveImage(buffer []byte, fname string) (string, error) {
 
 	var size int64 = int64(len(buffer))
 
-	var destDir string = S3_FOLDER + fname
+	var key string = fname
 
 	res, err := s3.New(sess).PutObject(&s3.PutObjectInput{
 		Bucket:               aws.String(S3_BUCKET),
-		Key:                  aws.String(destDir),
+		Key:                  aws.String(key),
 		ACL:                  aws.String("public-read"),
 		Body:                 bytes.NewReader(buffer),
 		ContentLength:        aws.Int64(size),
@@ -63,7 +62,43 @@ func SaveImage(buffer []byte, fname string) (string, error) {
 		return "", err
 	}
 
-	url := S3_HOST + "/" + destDir
+	url := S3_HOST + "/" + key
 
 	return url, nil
+}
+
+func UnlinkImage(fname string) error {
+
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(S3_REGION)})
+
+	if err != nil {
+		return err
+	}
+
+	key := fname
+
+	svc := s3.New(sess)
+
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(S3_BUCKET),
+		Key:    aws.String(key),
+	}
+
+	result, err := svc.DeleteObject(input)
+
+	if err != nil {
+		log.Println("ERROR: " + err.Error())
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			default:
+				log.Println("AWS-ERR: " + aerr.Error())
+				return err
+			}
+		} else {
+			log.Println("ERR: " + err.Error())
+			return err
+		}
+	}
+	log.Println("S3-Delete: ", result)
+	return nil
 }

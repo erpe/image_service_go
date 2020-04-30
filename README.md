@@ -24,7 +24,6 @@ cors = ["http://localhost:3000"]
 
 
 # storage can be either 's3' or 'local'
-# adopt s3 settings - or localstore
 [storage]
 type = "s3"
 
@@ -35,7 +34,6 @@ type = "s3"
 region = "eu-central-1"
 bucket = "FOO"
 host = "https://FOO.s3.eu-central-1.amazonaws.com"
-folder =""
 
 [localstore]
 assethost = "http://localhost:3010"
@@ -51,7 +49,7 @@ directory = "uploads"
 
 `curl --location --request GET 'http://localhost:3010/api/images'`
 
-response: 
+response:
 ```
 [
   {

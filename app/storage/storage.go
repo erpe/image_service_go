@@ -36,7 +36,7 @@ func SaveImage(data []byte, name string) (string, error) {
 func UnlinkImage(fname string) error {
 	cfg := config.GetConfig()
 	if cfg.Storage.IsS3() {
-		return nil
+		return s3store.UnlinkImage(fname)
 	}
 
 	if cfg.Storage.IsLocal() {
