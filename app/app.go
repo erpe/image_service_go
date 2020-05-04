@@ -55,6 +55,11 @@ func (a *App) setRouters() {
 	a.Router = mux.NewRouter()
 	apiRouter := a.Router.PathPrefix("/api").Subrouter()
 
+	apiRouter.HandleFunc("/images/{imageId}/variants", a.variantsHandler).
+		Methods("GET")
+	apiRouter.HandleFunc("/images/{imageId}/variants", a.createVariantHandler).
+		Methods("POST")
+
 	apiRouter.HandleFunc("/images", a.imagesHandler).
 		Methods("GET")
 	apiRouter.HandleFunc("/images/{id}", a.imageHandler).
@@ -66,15 +71,10 @@ func (a *App) setRouters() {
 	apiRouter.HandleFunc("/images/{id}", a.updateImageHandler).
 		Methods("PATCH")
 
-	apiRouter.HandleFunc("/images/{imageId}/variants", a.variantsHandler).
-		Methods("GET")
-
 	apiRouter.HandleFunc("/variants", a.variantsHandler).
 		Methods("GET")
 	apiRouter.HandleFunc("/variants/{id}", a.variantHandler).
 		Methods("GET")
-	apiRouter.HandleFunc("/variants/{imageId}", a.createVariantHandler).
-		Methods("POST")
 	apiRouter.HandleFunc("/variants/{id}", a.destroyVariantHandler).
 		Methods("DELETE")
 }

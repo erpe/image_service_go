@@ -3,7 +3,11 @@ package model
 import (
 	"encoding/base64"
 	"errors"
+	"github.com/erpe/image_service_go/app/storage"
+	_ "golang.org/x/image/tiff"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
 	"log"
 	"net/http"
 	"strings"
@@ -29,6 +33,28 @@ type PostImage struct {
 	Category  string `gorm:"INDEX" json:"category"`
 	// ignore Data while storing to db
 	Data string `gorm:"-" json:"data"`
+}
+
+func (i *Image) Image() (image.Image, string, error) {
+	img, format, err := storage.ReadImage(i.Filename)
+
+	if err != nil {
+		log.Println("ERROR - model.Image#Image: ", err.Error())
+		return img, format, err
+	} else {
+		return img, format, nil
+	}
+}
+
+func (i *Image) Bytes() ([]byte, error) {
+
+	data, err := storage.ReadImageBytes(i.Filename)
+
+	if err != nil {
+		return data, err
+	} else {
+		return data, nil
+	}
 }
 
 func (pi *PostImage) TableName() string {

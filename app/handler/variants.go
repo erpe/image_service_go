@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/erpe/image_service_go/app/model"
-	//"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"log"
@@ -54,7 +53,33 @@ func GetVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-	// TODO
+	vars := mux.Vars(r)
+
+	imageId := makeInt(vars["imageId"])
+
+	img := getImageOr404(db, imageId, w)
+
+	if img == nil {
+		return
+	}
+
+	log.Println("handler.CreateVariant - image: ", img)
+	/** TODO:
+		* read image - from S3 or local file
+		* create variant data
+		* save as variant-image
+		* save variant
+		* return variant
+	**/
+
+	res, format, err := img.Image()
+
+	if err != nil {
+		log.Println("ERROR - CreateVariant: ", err.Error())
+	}
+
+	log.Println("format: ", format, res)
+
 }
 
 func DestroyVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
