@@ -150,7 +150,7 @@ func createImageName(id int, format string) string {
 
 func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Image {
 	image := model.Image{}
-	if err := db.First(&image, id).Error; err != nil {
+	if err := db.Preload("Variants").First(&image, id).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}

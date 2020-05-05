@@ -10,8 +10,8 @@ type Variant struct {
 	Url      string `json:"url"`
 	Filename string `json:"filename"`
 	Name     string `json:"name"`
-	ImageID  int
-	Image    Image `gorm:"association_autoupdate:false;association_autocreate:false"`
+	ImageID  int    `json:"image_id"`
+	Image    Image  `gorm:"association_autoupdate:false;association_autocreate:false" json:"image,omitempty"`
 }
 
 type PostVariant struct {

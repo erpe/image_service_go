@@ -44,7 +44,7 @@ func GetVariants(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 		log.Println("variants unscoped")
 
-		if err := db.Find(&variants).Error; err != nil {
+		if err := db.Preload("Image").Find(&variants).Error; err != nil {
 			log.Fatal("ERROR: ", err.Error())
 			respondError(w, http.StatusInternalServerError, err.Error())
 		}
@@ -162,7 +162,7 @@ func DestroyVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 func getVariantOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Variant {
 	variant := model.Variant{}
 
-	if err := db.First(&variant, id).Error; err != nil {
+	if err := db.Preload("Image").First(&variant, id).Error; err != nil {
 		respondError(w, http.StatusNotFound, err.Error())
 		return nil
 	}
