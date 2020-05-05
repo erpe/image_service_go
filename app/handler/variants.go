@@ -38,7 +38,7 @@ func GetVariants(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db.Model(&img).Related(&variants)
+		db.Preload("Image").Model(&img).Related(&variants)
 
 	} else {
 

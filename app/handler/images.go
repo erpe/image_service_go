@@ -22,7 +22,7 @@ func init() {
 func GetImages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	images := []model.Image{}
 
-	if err := db.Find(&images).Error; err != nil {
+	if err := db.Preload("Variants").Find(&images).Error; err != nil {
 		log.Fatal("ERROR: ", err)
 	}
 
