@@ -132,3 +132,111 @@ curl --location --request PATCH 'http://localhost:3010/api/images/1' \
 curl --location --request DELETE 'http://localhost:3010/api/images/42'
 
 ```
+
+## Variants
+
+create/read/destroy variants, variants of given image
+
+
+GET /api/variants
+
+```
+curl --location --request GET 'http://localhost:3010/api/variants'
+
+// response
+
+[
+  {
+    "id": 10,
+    "width": 200,
+    "height": 200,
+    "filetype": "png",
+    "url": "https://foo.s3.eu-central-1.amazonaws.com/60-10.png",
+    "filename": "60-10.png",
+    "name": "niceformatname",
+    "ImageID": 60,
+    "Image": {
+      "id": 0,
+      "url": "",
+      "filename": "",
+      "alt": "",
+      "copyright": "",
+      "category": "",
+      "Variants": null
+    }
+  },
+  {...}
+]
+```
+
+GET /api/images/42/variants
+
+```
+curl --location --request GET 'http://localhost:3010/api/images/42/variants'
+
+// response
+
+[
+  {
+    "id": 10,
+    "width": 200,
+    "height": 200,
+    "filetype": "png",
+    "url": "https://foo.s3.eu-central-1.amazonaws.com/60-10.png",
+    "filename": "60-10.png",
+    "name": "niceformatname",
+    "ImageID": 42,
+    "Image": {
+      "id": 0,
+      "url": "",
+      "filename": "",
+      "alt": "",
+      "copyright": "",
+      "category": "",
+      "Variants": null
+    }
+  }
+]
+```
+
+POST /api/images/42/variants
+
+```
+curl --location --request POST 'http://localhost:3010/api/images/60/variants' \
+--data-raw '{
+    "width":200,
+    "height":200,
+    "filetype":"png",
+    "keep_ratio": true,
+    "name": "niceformatname"
+}'
+
+
+// response
+
+{
+  "id": 10,
+  "width": 200,
+  "height": 200,
+  "filetype": "png",
+  "url": "https://foo.s3.eu-central-1.amazonaws.com/60-10.png",
+  "filename": "60-10.png",
+  "name": "niceformatname",
+  "ImageID": 60,
+  "Image": {
+    "id": 0,
+    "url": "",
+    "filename": "",
+    "alt": "",
+    "copyright": "",
+    "category": "",
+    "Variants": null
+  }
+}
+```
+
+DELETE /api/variants/1
+
+```
+curl --location --request DELETE 'http://localhost:3010/api/variants/1'
+```
