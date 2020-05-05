@@ -145,7 +145,7 @@ func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 }
 
 func createImageName(id int, format string) string {
-	return strconv.Itoa(id) + "-upload." + format
+	return strconv.Itoa(id) + "." + format
 }
 
 func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Image {
