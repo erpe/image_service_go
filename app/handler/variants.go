@@ -23,7 +23,7 @@ import (
 func GetVariants(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	variants := []model.Variant{}
+	variants := []model.ReadVariant{}
 
 	imgId, ok := vars["imageId"]
 
@@ -38,13 +38,13 @@ func GetVariants(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db.Preload("Image").Model(&img).Related(&variants)
+		db.Model(&img).Related(&variants)
 
 	} else {
 
 		log.Println("variants unscoped")
 
-		if err := db.Preload("Image").Find(&variants).Error; err != nil {
+		if err := db.Find(&variants).Error; err != nil {
 			log.Fatal("ERROR: ", err.Error())
 			respondError(w, http.StatusInternalServerError, err.Error())
 		}
@@ -98,10 +98,13 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	var newImg image.Image
 
+	width := postVar.Width
+	height := postVar.Height
+
 	if postVar.KeepRatio == true {
-		newImg = imaging.Resize(origin, postVar.Width, 0, imaging.Lanczos)
+		newImg = imaging.Resize(origin, width, height, imaging.Lanczos)
 	} else {
-		newImg = imaging.Resize(origin, postVar.Width, postVar.Height, imaging.Lanczos)
+		newImg = imaging.CropAnchor(origin, width, height, imaging.Center)
 	}
 
 	imgBytes, err := encodeImageBytes(newImg, postVar.Filetype)
@@ -131,6 +134,7 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	variant.Url = url
 	variant.Filename = fname
 	variant.ImageID = img.ID
+	//variant.Image = *img
 
 	if err := db.Save(&variant).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())

@@ -25,11 +25,11 @@ type db struct {
 }
 
 type server struct {
-	Name       string
-	Port       int
-	Debug      bool
-	AdminToken string
-	Cors       []string
+	Name  string
+	Port  int
+	Debug bool
+	Token string
+	Cors  []string
 }
 
 type storage struct {

@@ -41,7 +41,7 @@ func (a *App) Initialize(config *config.Config) {
 		a.DB.LogMode(true)
 	}
 
-	log.Printf("connected database '%s'", config.DB.Name)
+	log.Printf("Connected database '%s'", config.DB.Name)
 
 	a.setRouters()
 	a.setMiddleware()
@@ -53,12 +53,15 @@ func (a *App) setMiddleware() {
 
 func (a *App) setRouters() {
 	a.Router = mux.NewRouter()
+
+	if a.Config.Storage.IsLocal() {
+		staticRouter := a.Router.PathPrefix("/" + a.Config.Localstore.Directory)
+		staticRouter.Handler(http.FileServer(http.Dir("./")))
+	}
+
 	apiRouter := a.Router.PathPrefix("/api").Subrouter()
 
-	apiRouter.HandleFunc("/images/{imageId}/variants", a.variantsHandler).
-		Methods("GET")
-	apiRouter.HandleFunc("/images/{imageId}/variants", a.createVariantHandler).
-		Methods("POST")
+	apiRouter.Use(handler.AuthenticationMiddleware)
 
 	apiRouter.HandleFunc("/images", a.imagesHandler).
 		Methods("GET")
@@ -70,6 +73,11 @@ func (a *App) setRouters() {
 		Methods("DELETE")
 	apiRouter.HandleFunc("/images/{id}", a.updateImageHandler).
 		Methods("PATCH")
+
+	apiRouter.HandleFunc("/images/{imageId}/variants", a.variantsHandler).
+		Methods("GET")
+	apiRouter.HandleFunc("/images/{imageId}/variants", a.createVariantHandler).
+		Methods("POST")
 
 	apiRouter.HandleFunc("/variants", a.variantsHandler).
 		Methods("GET")
@@ -125,7 +133,7 @@ func (a *App) Run() {
 	originsOk := handlers.AllowedOrigins(a.Config.Server.Cors)
 
 	for _, host := range a.Config.Server.Cors {
-		log.Printf("enabling CORS for: %s", host)
+		log.Printf("Enabling CORS for: %s", host)
 	}
 
 	methodsOk := handlers.AllowedMethods([]string{
@@ -137,7 +145,7 @@ func (a *App) Run() {
 		"DELETE",
 	})
 
-	log.Printf("listening on '%s'", a.Config.Server.ToString())
+	log.Printf("Listening on '%s'", a.Config.Server.ToString())
 	log.Fatal(http.ListenAndServe(a.Config.Server.ToString(),
 		handlers.CORS(originsOk, headersOk, methodsOk)(a.Router)))
 }

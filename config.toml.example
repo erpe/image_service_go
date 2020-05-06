@@ -10,7 +10,7 @@ password = "your-password"
 name = "localhost"
 port = 3010
 debug = true
-admin_token = "your-secret-access-token"
+token = "your-secret-access-token"
 cors = ["http://localhost:3000"]
 
 [storage]

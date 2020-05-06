@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/erpe/image_service_go/app/config"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/erpe/image_service_go/app/storage"
@@ -133,6 +134,12 @@ func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	image := getImageOr404(db, imageId, w)
 
 	if image == nil {
+		return
+	}
+
+	if len(image.Variants) > 0 {
+		err := errors.New("Remove existing variants first")
+		respondError(w, http.StatusNotAcceptable, err.Error())
 		return
 	}
 

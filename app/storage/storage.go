@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"github.com/erpe/image_service_go/app/config"
 	"github.com/erpe/image_service_go/app/storage/local"
 	"github.com/erpe/image_service_go/app/storage/s3store"
@@ -11,15 +12,14 @@ import (
 func SaveImage(data []byte, name string) (string, error) {
 	cfg := config.GetConfig()
 
-	var url string
-
 	if cfg.Storage.IsS3() {
 		res, err := s3store.SaveImage(data, name)
 
 		if err != nil {
 			return "", err
 		}
-		url = res
+
+		return res, nil
 	}
 
 	if cfg.Storage.IsLocal() {
@@ -29,14 +29,15 @@ func SaveImage(data []byte, name string) (string, error) {
 			return "", err
 		}
 
-		url = res
+		return res, nil
 	}
 
-	return url, nil
+	return "", errors.New("Storage type unknown")
 }
 
 func UnlinkImage(fname string) error {
 	cfg := config.GetConfig()
+
 	if cfg.Storage.IsS3() {
 		return s3store.UnlinkImage(fname)
 	}
@@ -44,13 +45,15 @@ func UnlinkImage(fname string) error {
 	if cfg.Storage.IsLocal() {
 		return local.UnlinkImage(fname)
 	}
-	return nil
+
+	return errors.New("Storage type unknown")
 }
 
 func ReadImage(fname string) (image.Image, string, error) {
 	cfg := config.GetConfig()
 
 	var img image.Image
+	var format string
 
 	if cfg.Storage.IsS3() {
 
@@ -64,11 +67,16 @@ func ReadImage(fname string) (image.Image, string, error) {
 	}
 
 	if cfg.Storage.IsLocal() {
-		// TODO
-		return img, "", nil
+
+		img, format, err := local.ReadImage(fname)
+
+		if err != nil {
+			return img, format, err
+		}
+		return img, format, nil
 	}
 
-	return img, "", nil
+	return img, format, errors.New("Storage type unknown")
 }
 
 func ReadImageBytes(fname string) ([]byte, error) {
@@ -87,8 +95,15 @@ func ReadImageBytes(fname string) ([]byte, error) {
 	}
 
 	if cfg.Storage.IsLocal() {
-		return data, nil
+
+		data, err := local.ReadImageBytes(fname)
+
+		if err != nil {
+			return data, err
+		} else {
+			return data, nil
+		}
 	}
 
-	return data, nil
+	return data, errors.New("Storage type unknown")
 }
