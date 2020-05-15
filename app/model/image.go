@@ -21,6 +21,7 @@ type Image struct {
 	Alt       string        `json:"alt"`
 	Copyright string        `json:"copyright"`
 	Category  string        `gorm:"INDEX" json:"category"`
+	Client    string        `gorm:"INDEX" json:"client"`
 	Variants  []ReadVariant `json:"variants,omitempty"`
 }
 
@@ -32,6 +33,7 @@ type PostImage struct {
 	Alt       string `json:"alt"`
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
+	Client    string `gorm:"INDEX" json:"client"`
 	// ignore Data while storing to db
 	Data string `gorm:"-" json:"data"`
 }

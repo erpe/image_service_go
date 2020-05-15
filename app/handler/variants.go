@@ -53,7 +53,6 @@ func GetVariants(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	respondJSON(w, http.StatusOK, variants)
-
 }
 
 func GetVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
@@ -134,7 +133,6 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	variant.Url = url
 	variant.Filename = fname
 	variant.ImageID = img.ID
-	//variant.Image = *img
 
 	if err := db.Save(&variant).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
