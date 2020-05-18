@@ -135,6 +135,7 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	variant.ImageID = img.ID
 
 	if err := db.Save(&variant).Error; err != nil {
+		log.Println("Save error: ", err.Error())
 		respondError(w, http.StatusInternalServerError, err.Error())
 	} else {
 		respondJSON(w, http.StatusCreated, variant)

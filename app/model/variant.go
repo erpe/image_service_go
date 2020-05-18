@@ -18,8 +18,8 @@ type PostVariant struct {
 	ID        int    `gorm:"column:id" json:"id"`
 	Width     int    `json:"width"`
 	Height    int    `json:"height"`
-	Filetype  string `json:"filetype"`
-	Name      string `json:"name"`
+	Filetype  string `json:"filetype" valid:"required,stringlength(3|5)"`
+	Name      string `json:"name" valid:"required,stringlength(3|50)"`
 	KeepRatio bool   `gorm:"-" json:"keep_ratio"`
 }
 

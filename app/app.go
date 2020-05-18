@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/qor/validations"
 	"log"
 	"net/http"
 )
@@ -34,6 +35,8 @@ func (a *App) Initialize(config *config.Config) {
 	if err != nil {
 		log.Fatal("Could not connect database: ", err)
 	}
+
+	validations.RegisterCallbacks(db)
 
 	a.DB = model.DBMigrate(db)
 

@@ -33,7 +33,7 @@ type PostImage struct {
 	Alt       string `json:"alt"`
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
-	Client    string `gorm:"INDEX" json:"client"`
+	Client    string `gorm:"INDEX" json:"client" valid:"required,stringlength(3|50)"`
 	// ignore Data while storing to db
 	Data string `gorm:"-" json:"data"`
 }
