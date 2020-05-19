@@ -21,10 +21,29 @@ func init() {
 
 /* GET /api/images */
 func GetImages(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+
+	/*
+		optional query argument 'client'
+		to scope images by client
+	*/
+	client := r.FormValue("client")
+
 	images := []model.Image{}
 
-	if err := db.Preload("Variants").Find(&images).Error; err != nil {
-		log.Fatal("ERROR: ", err)
+	if len(client) > 0 {
+		log.Println("Query scoped by client: ", client)
+		if err := db.Preload("Variants").
+			Find(&images, "client = ?", client).
+			Error; err != nil {
+			log.Fatal("ERROR: ", err)
+		}
+	} else {
+		log.Println("No client scope present")
+		if err := db.Preload("Variants").
+			Find(&images).
+			Error; err != nil {
+			log.Fatal("ERROR: ", err)
+		}
 	}
 
 	defer r.Body.Close()
