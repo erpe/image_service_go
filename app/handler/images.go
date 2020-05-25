@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/erpe/image_service_go/app/config"
@@ -8,6 +9,7 @@ import (
 	"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"image"
 	"log"
 	"net/http"
 	"strconv"
@@ -82,6 +84,13 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("err: ", err.Error())
 		respondError(w, http.StatusInternalServerError, err.Error())
+	}
+
+	mErr := supplyMeta(&postImage)
+
+	if mErr != nil {
+		respondError(w, http.StatusInternalServerError, mErr.Error())
+		return
 	}
 
 	if err := db.Save(&postImage).Error; err != nil {
@@ -182,4 +191,27 @@ func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Image {
 	}
 
 	return &image
+}
+
+func supplyMeta(pImg *model.PostImage) error {
+
+	data, _, err := pImg.Bytes()
+
+	if err != nil {
+		return err
+	}
+
+	imgReader := bytes.NewReader(data)
+
+	cfg, fmt, err := image.DecodeConfig(imgReader)
+
+	if err != nil {
+		return err
+	}
+
+	pImg.Width = cfg.Width
+	pImg.Height = cfg.Height
+	pImg.Format = fmt
+
+	return nil
 }
