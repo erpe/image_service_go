@@ -22,6 +22,9 @@ type Image struct {
 	Copyright string        `json:"copyright"`
 	Category  string        `gorm:"INDEX" json:"category"`
 	Client    string        `gorm:"INDEX" json:"client"`
+	Width     int           `gorm:"width" json: "width"`
+	Height    int           `gorm:"height" json: "height"`
+	Format    string        `gorm:"format" json:"format"`
 	Variants  []ReadVariant `json:"variants,omitempty"`
 }
 
@@ -34,6 +37,9 @@ type PostImage struct {
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
 	Client    string `gorm:"INDEX" json:"client" valid:"required,stringlength(3|50)"`
+	Width     int    `gorm:"width" json: "width"`
+	Height    int    `gorm:"height" json: "height"`
+	Format    string `gorm:"format" json:"format"`
 	// ignore Data while storing to db
 	Data string `gorm:"-" json:"data"`
 }
