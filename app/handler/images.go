@@ -1,24 +1,30 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/erpe/image_service_go/app/config"
 	"github.com/erpe/image_service_go/app/model"
+	"github.com/erpe/image_service_go/app/service"
 	"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"image"
 	"log"
 	"net/http"
 	"strconv"
 )
 
-var appConfig *config.Config
+var previewFormat PreviewFormat
 
 func init() {
-	appConfig = config.GetConfig()
+	// default variant created with this values
+	previewFormat = PreviewFormat{Width: 150, Height: 300, Format: "jpeg", Name: "preview"}
+}
+
+type PreviewFormat struct {
+	Width  int
+	Height int
+	Format string
+	Name   string
 }
 
 /* GET /api/images */
@@ -118,6 +124,18 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		if err := db.Save(&img).Error; err != nil {
 			respondError(w, http.StatusInternalServerError, err.Error())
 		} else {
+
+			vc := service.VariantCreator{DB: db, Image: &img}
+
+			// create a variant with width 150
+			_, err := vc.Run(previewFormat.Width, previewFormat.Height, previewFormat.Format, previewFormat.Name)
+
+			if err != nil {
+				respondError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+
+			db.Preload("Variants").First(&img, postImage.ID)
 			respondJSON(w, http.StatusCreated, img)
 		}
 	}
@@ -193,6 +211,7 @@ func getImageOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Image {
 	return &image
 }
 
+/* inspect/supply width, height, format on image creation */
 func supplyMeta(pImg *model.PostImage) error {
 
 	data, _, err := pImg.Bytes()
@@ -201,9 +220,7 @@ func supplyMeta(pImg *model.PostImage) error {
 		return err
 	}
 
-	imgReader := bytes.NewReader(data)
-
-	cfg, fmt, err := image.DecodeConfig(imgReader)
+	cfg, fmt, err := service.ExtractMeta(data)
 
 	if err != nil {
 		return err
