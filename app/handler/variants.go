@@ -1,22 +1,16 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"github.com/disintegration/imaging"
 	"github.com/erpe/image_service_go/app/model"
+	"github.com/erpe/image_service_go/app/service"
 	"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"golang.org/x/image/tiff"
 	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 /* GET /api/variants */
@@ -106,7 +100,7 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		newImg = imaging.CropAnchor(origin, width, height, imaging.Center)
 	}
 
-	imgBytes, err := encodeImageBytes(newImg, postVar.Filetype)
+	imgBytes, err := service.EncodeImageBytes(newImg, postVar.Format)
 
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err.Error())
@@ -121,7 +115,7 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	db.First(&variant, postVar.ID)
 
-	fname := createVariantName(imageId, postVar.ID, postVar.Filetype)
+	fname := service.CreateVariantName(imageId, postVar.ID, postVar.Format)
 
 	url, err := storage.SaveImage(imgBytes, fname)
 
@@ -170,34 +164,4 @@ func getVariantOr404(db *gorm.DB, id int, w http.ResponseWriter) *model.Variant 
 		return nil
 	}
 	return &variant
-}
-
-func createVariantName(imgId int, varId int, format string) string {
-	return strconv.Itoa(imgId) + "-" + strconv.Itoa(varId) + "." + format
-}
-
-func encodeImageBytes(img image.Image, format string) ([]byte, error) {
-
-	buf := new(bytes.Buffer)
-
-	var err error
-
-	switch format {
-	case "jpeg":
-		err = jpeg.Encode(buf, img, &jpeg.Options{Quality: 95})
-	case "png":
-		err = png.Encode(buf, img)
-	case "tiff":
-		err = tiff.Encode(buf, img, nil)
-	case "gif":
-		err = gif.Encode(buf, img, nil)
-	default:
-		err = errors.New("unsupported format: " + format)
-	}
-
-	if err != nil {
-		return buf.Bytes(), err
-	}
-
-	return buf.Bytes(), nil
 }

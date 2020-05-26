@@ -22,8 +22,8 @@ type Image struct {
 	Copyright string        `json:"copyright"`
 	Category  string        `gorm:"INDEX" json:"category"`
 	Client    string        `gorm:"INDEX" json:"client"`
-	Width     int           `gorm:"width" json: "width"`
-	Height    int           `gorm:"height" json: "height"`
+	Width     int           `gorm:"width" json:"width"`
+	Height    int           `gorm:"height" json:"height"`
 	Format    string        `gorm:"format" json:"format"`
 	Variants  []ReadVariant `json:"variants,omitempty"`
 }
