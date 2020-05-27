@@ -18,6 +18,11 @@ import (
 type VariantCreator struct {
 	DB    *gorm.DB
 	Image *model.Image
+	// modes -
+	// fit: scale down to bounding box
+	// fill: resize and crop to fill width/height
+	// resize: scale either by width or ehight
+	Mode string
 }
 
 func (vc *VariantCreator) Run(width int, height int, format string, name string) (model.Variant, error) {
@@ -32,7 +37,17 @@ func (vc *VariantCreator) Run(width int, height int, format string, name string)
 
 	var img image.Image
 
-	img = imaging.Fit(origin, width, height, imaging.Lanczos)
+	//img = imaging.Fill(origin, width, height, imaging.Center, imaging.Lanczos)
+	switch vc.Mode {
+	case "fit":
+		img = imaging.Fit(origin, width, height, imaging.Lanczos)
+	case "fill":
+		img = imaging.Fill(origin, width, height, imaging.Center, imaging.Lanczos)
+	case "resize":
+		img = imaging.Resize(origin, width, 0, imaging.Lanczos)
+	default:
+		img = imaging.Fit(origin, width, height, imaging.Lanczos)
+	}
 
 	variantBytes, err := EncodeImageBytes(img, format)
 

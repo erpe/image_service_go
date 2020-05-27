@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/erpe/image_service_go/app/service"
 	"github.com/erpe/image_service_go/app/storage"
@@ -184,9 +183,17 @@ func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(image.Variants) > 0 {
-		err := errors.New("Remove existing variants first")
-		respondError(w, http.StatusNotAcceptable, err.Error())
-		return
+		for _, variant := range image.Variants {
+			if err := storage.UnlinkImage(variant.Filename); err != nil {
+				respondError(w, http.StatusInternalServerError, err.Error())
+				return
+			} else {
+				db.Unscoped().Delete(&variant)
+			}
+		}
+		//err := errors.New("Remove existing variants first")
+		//respondError(w, http.StatusNotAcceptable, err.Error())
+		//return
 	}
 
 	if err := storage.UnlinkImage(image.Filename); err != nil {

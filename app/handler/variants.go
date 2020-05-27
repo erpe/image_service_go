@@ -2,13 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/disintegration/imaging"
 	"github.com/erpe/image_service_go/app/model"
 	"github.com/erpe/image_service_go/app/service"
 	"github.com/erpe/image_service_go/app/storage"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
-	"image"
 	"log"
 	"net/http"
 )
@@ -83,57 +81,14 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	origin, _, err := img.Image()
+	vc := service.VariantCreator{DB: db, Image: img, Mode: "fill"}
+	variant, err := vc.Run(postVar.Width, postVar.Height, postVar.Format, postVar.Name)
 
 	if err != nil {
-		log.Println("ERROR - CreateVariant: ", err.Error())
-	}
-
-	var newImg image.Image
-
-	width := postVar.Width
-	height := postVar.Height
-
-	if postVar.KeepRatio == true {
-		newImg = imaging.Resize(origin, width, height, imaging.Lanczos)
-	} else {
-		newImg = imaging.CropAnchor(origin, width, height, imaging.Center)
-	}
-
-	imgBytes, err := service.EncodeImageBytes(newImg, postVar.Format)
-
-	if err != nil {
+		log.Println("error creating variant: ", err.Error())
 		respondError(w, http.StatusInternalServerError, err.Error())
 	}
-
-	if err := db.Save(&postVar).Error; err != nil {
-		log.Println("Save error: ", err.Error())
-		respondError(w, http.StatusInternalServerError, err.Error())
-	}
-
-	variant := model.Variant{}
-
-	db.First(&variant, postVar.ID)
-
-	fname := service.CreateVariantName(imageId, postVar.ID, postVar.Format)
-
-	url, err := storage.SaveImage(imgBytes, fname)
-
-	if err != nil {
-		log.Println("ERROR storage: ", err.Error())
-		respondError(w, http.StatusInternalServerError, err.Error())
-	}
-
-	variant.Url = url
-	variant.Filename = fname
-	variant.ImageID = img.ID
-
-	if err := db.Save(&variant).Error; err != nil {
-		log.Println("Save error: ", err.Error())
-		respondError(w, http.StatusInternalServerError, err.Error())
-	} else {
-		respondJSON(w, http.StatusCreated, variant)
-	}
+	respondJSON(w, http.StatusCreated, variant)
 }
 
 func DestroyVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
