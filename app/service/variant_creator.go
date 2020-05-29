@@ -21,7 +21,7 @@ type VariantCreator struct {
 	// modes -
 	// fit: scale down to bounding box
 	// fill: resize and crop to fill width/height
-	// resize: scale either by width or ehight
+	// resize: scale either by width or hight
 	Mode string
 }
 
@@ -44,7 +44,10 @@ func (vc *VariantCreator) Run(width int, height int, format string, name string)
 	case "fill":
 		img = imaging.Fill(origin, width, height, imaging.Center, imaging.Lanczos)
 	case "resize":
-		img = imaging.Resize(origin, width, 0, imaging.Lanczos)
+		if width > 0 && height > 0 {
+			return variant, errors.New("width and height greater 0 - resize would distort")
+		}
+		img = imaging.Resize(origin, width, height, imaging.Lanczos)
 	default:
 		img = imaging.Fit(origin, width, height, imaging.Lanczos)
 	}
