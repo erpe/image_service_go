@@ -21,6 +21,7 @@ type Image struct {
 	Alt       string        `json:"alt"`
 	Copyright string        `json:"copyright"`
 	Category  string        `gorm:"INDEX" json:"category"`
+	Notes     string        `json:"notes"`
 	Client    string        `gorm:"INDEX" json:"client"`
 	Width     int           `gorm:"width" json:"width"`
 	Height    int           `gorm:"height" json:"height"`
@@ -36,6 +37,7 @@ type PostImage struct {
 	Alt       string `json:"alt"`
 	Copyright string `json:"copyright"`
 	Category  string `gorm:"INDEX" json:"category"`
+	Notes     string `json:"notes"`
 	Client    string `gorm:"INDEX" json:"client" valid:"required,stringlength(3|50)"`
 	Width     int    `gorm:"width" json: "width"`
 	Height    int    `gorm:"height" json: "height"`

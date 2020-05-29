@@ -126,7 +126,7 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 			vc := service.VariantCreator{DB: db, Image: &img}
 
-			// create a variant with width 150
+			// create a preview variant
 			_, err := vc.Run(previewFormat.Width, previewFormat.Height, previewFormat.Format, previewFormat.Name)
 
 			if err != nil {
@@ -191,9 +191,6 @@ func DestroyImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 				db.Unscoped().Delete(&variant)
 			}
 		}
-		//err := errors.New("Remove existing variants first")
-		//respondError(w, http.StatusNotAcceptable, err.Error())
-		//return
 	}
 
 	if err := storage.UnlinkImage(image.Filename); err != nil {
