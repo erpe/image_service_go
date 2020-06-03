@@ -14,6 +14,6 @@ func GetClients(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	var clients []ClientResult
 
-	db.Raw("SELECT client, count(images) from images GROUP BY client").Scan(&clients)
+	db.Raw("SELECT client, COUNT(images) FROM images GROUP BY client").Scan(&clients)
 	respondJSON(w, http.StatusOK, clients)
 }
