@@ -65,7 +65,8 @@ func (a *App) setRouters() {
 	apiRouter := a.Router.PathPrefix("/api").Subrouter()
 
 	apiRouter.Use(handler.AuthenticationMiddleware)
-
+	apiRouter.HandleFunc("/clients", a.clientsHandler).
+		Methods("GET")
 	apiRouter.HandleFunc("/images", a.imagesHandler).
 		Methods("GET")
 	apiRouter.HandleFunc("/images/{id}", a.imageHandler).
@@ -88,6 +89,10 @@ func (a *App) setRouters() {
 		Methods("GET")
 	apiRouter.HandleFunc("/variants/{id}", a.destroyVariantHandler).
 		Methods("DELETE")
+}
+
+func (a *App) clientsHandler(w http.ResponseWriter, r *http.Request) {
+	handler.GetClients(a.DB, w, r)
 }
 
 func (a *App) imagesHandler(w http.ResponseWriter, r *http.Request) {
