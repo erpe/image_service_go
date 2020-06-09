@@ -123,18 +123,6 @@ func CreateImage(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 		if err := db.Save(&img).Error; err != nil {
 			respondError(w, http.StatusInternalServerError, err.Error())
 		} else {
-
-			vc := service.VariantCreator{DB: db, Image: &img}
-
-			// create a preview variant
-			_, err := vc.Run(previewFormat.Width, previewFormat.Height, previewFormat.Format, previewFormat.Name)
-
-			if err != nil {
-				respondError(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-
-			db.Preload("Variants").First(&img, postImage.ID)
 			respondJSON(w, http.StatusCreated, img)
 		}
 	}
