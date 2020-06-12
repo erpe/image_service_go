@@ -81,7 +81,7 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	vc := service.VariantCreator{DB: db, Image: img, Mode: "fill", Client: postVar.Client}
+	vc := service.VariantCreator{DB: db, Image: img, Mode: postVar.Mode, Client: postVar.Client}
 	variant, err := vc.Run(postVar.Width, postVar.Height, postVar.Format, postVar.Name)
 
 	if err != nil {

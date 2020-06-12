@@ -20,6 +20,7 @@ type PostVariant struct {
 	Width     int    `json:"width"`
 	Height    int    `json:"height"`
 	Format    string `json:"format" valid:"required,stringlength(3|5)"`
+	Mode      string `gorm:"-" json:"mode"`
 	Name      string `gorm:"INDEX" json:"name" valid:"required,stringlength(3|50)"`
 	Client    string `gorm:"INDEX" json:"client" valid:"required,stringlength(3|50)"`
 	KeepRatio bool   `gorm:"-" json:"keep_ratio"`
