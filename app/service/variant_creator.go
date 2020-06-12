@@ -23,6 +23,8 @@ type VariantCreator struct {
 	// fill: resize and crop to fill width/height
 	// resize: scale either by width or hight
 	Mode string
+	// identify the client for which the variant is created (naming of this field is to be discussed)
+	Client string
 }
 
 func (vc *VariantCreator) Run(width int, height int, format string, name string) (model.Variant, error) {
@@ -71,6 +73,7 @@ func (vc *VariantCreator) Run(width int, height int, format string, name string)
 	variant.Name = name
 	variant.Format = fmt
 	variant.ImageID = vc.Image.ID
+	variant.Client = vc.Client
 
 	if err := vc.DB.Save(&variant).Error; err != nil {
 		return variant, err

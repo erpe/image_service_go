@@ -81,14 +81,15 @@ func CreateVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	vc := service.VariantCreator{DB: db, Image: img, Mode: "fill"}
+	vc := service.VariantCreator{DB: db, Image: img, Mode: postVar.Mode, Client: postVar.Client}
 	variant, err := vc.Run(postVar.Width, postVar.Height, postVar.Format, postVar.Name)
 
 	if err != nil {
 		log.Println("error creating variant: ", err.Error())
 		respondError(w, http.StatusInternalServerError, err.Error())
+	} else {
+		respondJSON(w, http.StatusCreated, variant)
 	}
-	respondJSON(w, http.StatusCreated, variant)
 }
 
 func DestroyVariant(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
